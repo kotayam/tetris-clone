@@ -2,7 +2,7 @@
 var rows = 20;
 var cols = 10;
 var blockSize = 40;
-var speed = 400;
+var speed = 10;
 var gameBoard;
 var ctx;
 
@@ -61,6 +61,7 @@ function update() {
 
     // draw block
     if (checkBlockAtEnd() || count == 0) {
+        deleteRow();
         if (blockY == 0) {
             gameover = true;
             alert("Game Over!");
@@ -111,7 +112,7 @@ function createBlock() {
 function checkCollision() {
     nextX = blockX + velX;
     nextY = blockY + velY;
-    return nextX < 0 || nextX >= cols || nextY >= rows || boardArr[nextY][nextX] != "black";
+    return nextX < 0  || nextY >= rows || boardArr[nextY][nextX] != "black";
 }
 
 function moveBlock() {
@@ -127,4 +128,19 @@ function moveBlock() {
 
 function checkBlockAtEnd() {
     return blockY == rows - 1 || boardArr[blockY + 1][blockX] != "black";
+}
+
+function deleteRow() {
+    tempArr = []
+    for (let r = boardArr.length - 1; r > -1; r--) {
+        if (!boardArr[r].includes("black")) {
+            tempArr.push(r);
+        }
+    }
+    for (let i = 0; i < tempArr.length; i++) {
+        boardArr.splice(tempArr[i], tempArr[i]);
+        filledArr = new Array(cols);
+        filledArr.fill("black");
+        boardArr.unshift(filledArr);
+    }
 }
