@@ -8,24 +8,26 @@ let ctx;
 
 let gameover = false;
 
-let turn = 1; // keeps track of first block
-let line = 0; // keeps track of how many lines deleted
-let score = 0;
+let turn; // keeps track of first block
+let line; // keeps track of how many lines deleted
+let score;
 
 // 2D array to store game state
 let boardArr;
 
 // block
 let blockCoords;
-let centerCoord;
+let originCoords;
 
 let velX;
 let velY;
 
 let blockColor;
 
-let blockTypes = ["square", "line"];
+let blockTypes = ["square", "line", "L1", "L2", "T", "Z1", "Z2"];
 let blockType;
+
+let rotateCount;
 
 // retrieve html items
 
@@ -42,10 +44,13 @@ window.onload = function() {
         }
     }
     blockCoords = [];
-    centerCoord = [4, -1];
+    originCoords = [];
     velX = 0;
     velY = 1;
-    count = 0;
+    turn = 1;
+    line = 0;
+    score = 0;
+    rotateCount = 0;
 
     // set up game board
     gameBoard = document.getElementById("gameBoard");
@@ -104,7 +109,7 @@ function keyDown(e) {
         velX = 1;
     }
     if (e.code == "ArrowUp") {
-        // rotate block
+        rotateBlock();
     } else if (e.code == "ArrowDown") {
         velY = 2;
     }
@@ -207,25 +212,67 @@ function createBlock() {
 
 // creates the block based on its block type
 function createBasedOnBlockType() {
+    let centerCoord = [];
     switch(blockType) {
         case "line":
             blockColor = "lightblue";
-            centerCoord = [4, -2, "center"]; // give center coord an id indicating center
+            centerCoord = [4, -1, "center"]; // give center coord an id indicating center
             blockCoords.push(centerCoord);
-            blockCoords.push([centerCoord[0], centerCoord[1] - 2]);
-            blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
-            blockCoords.push([centerCoord[0], centerCoord[1] + 1]);
+            blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
+            blockCoords.push([centerCoord[0] + 1, centerCoord[1]]);
+            blockCoords.push([centerCoord[0] + 2, centerCoord[1]]);
             break;
         case "square":
             blockColor = "yellow";
-            centerCoord = [4, -1, "center"]; // give center coord an id indicating center
+            centerCoord = [4, -1, "center"];
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] + 1, centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] + 1, centerCoord[1]]);
             break;
+        case "L1":
+            blockColor = "blue";
+            centerCoord = [4, -1, "center"]; 
+            blockCoords.push(centerCoord);
+            blockCoords.push([centerCoord[0] - 1, centerCoord[1] - 1]);
+            blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
+            blockCoords.push([centerCoord[0] + 1, centerCoord[1]]);
+            break;
+        case "L2":
+            blockColor = "orange";
+            centerCoord = [4, -1, "center"]; 
+            blockCoords.push(centerCoord);
+            blockCoords.push([centerCoord[0] + 1, centerCoord[1] - 1]);
+            blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
+            blockCoords.push([centerCoord[0] + 1, centerCoord[1]]);
+            break;
+        case "T":
+            blockColor = "purple";
+            centerCoord = [4, -1, "center"]; 
+            blockCoords.push(centerCoord);
+            blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
+            blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
+            blockCoords.push([centerCoord[0] + 1, centerCoord[1]]);
+            break;
+        case "Z1":
+            blockColor = "red";
+            centerCoord = [4, -1, "center"]; 
+            blockCoords.push(centerCoord);
+            blockCoords.push([centerCoord[0] - 1, centerCoord[1] - 1]);
+            blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
+            blockCoords.push([centerCoord[0] + 1, centerCoord[1]]);
+            break;
+        case "Z2":
+            blockColor = "green";
+            centerCoord = [4, -1, "center"]; 
+            blockCoords.push(centerCoord);
+            blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
+            blockCoords.push([centerCoord[0] + 1, centerCoord[1] - 1]);
+            blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
+            break;
     }
     blockCoords.sort(sortBlockCoords);
+    originCoords = JSON.parse(JSON.stringify(blockCoords));
 //    console.log(blockCoords);
     for (let i = 0; i < blockCoords.length; i++) {
         if (blockCoords[i][1] >= 0) {
@@ -267,7 +314,13 @@ function moveBlock() {
         let currY = blockCoords[i][1];
         let nextX = currX + velX;
         let nextY = currY + velY;
-        blockCoords[i] = [nextX, nextY];
+        if (blockCoords[i][2] === "center") {
+            blockCoords[i] = [nextX, nextY, "center"];
+        } else {
+            blockCoords[i] = [nextX, nextY];
+        }
+        //blockCoords[i][0] = nextX;
+        //blockCoords[i][1] = nextY;
         if (currY >= 0 && nextY >= 0) {
 //            console.log("1: " + currX + ", " + currY);
             boardArr[currY][currX] = "black"
@@ -281,4 +334,14 @@ function moveBlock() {
     }
     console.log("moved block");
 //    console.log(blockCoords);
+}
+
+function rotateBlock() {
+    rotateCount++;
+    if (rotateCount % 4 == 0) {
+        blockCoords = JSON.parse(JSON.stringify(originCoords));
+    } else if (rotateCount % 4 == 3) {
+        for (let i = 0; i < blockCoords.length; i++) {
+        }
+    } 
 }
