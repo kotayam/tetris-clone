@@ -3,14 +3,14 @@ const rows = 20;
 const cols = 10;
 const blockSize = 40;
 const gameSpeed = 200; // in miliseconds (1000 milisec = 1 sec)
-let gameBoard;
+let myInterval;
 let ctx;
 
 let gameover = false;
 
-let turn; // keeps track of first block
-let line; // keeps track of how many lines deleted
-let score;
+let turns; // keeps track of first block
+let lines; // keeps track of how many lines deleted
+let score; // keeps track of score
 
 // 2D array to store game state
 let boardArr;
@@ -28,14 +28,47 @@ let blockTypes = ["square", "line", "L1", "L2", "T", "Z1", "Z2"];
 let blockType;
 
 let rotateCount;
+let count;
 
-// retrieve html items
+// html items
+let startButton;
+let resetButton;
+let gameBoard;
+let turnText;
+let lineText;
+let scoreText;
 
-window.onload = function() {
+// start game
+window.onload = function () {
+    startButton = document.querySelector("#start");
+    homeButton = document.querySelector("#home");
+    gameBoard = document.querySelector("#gameBoard");
+    ctx = gameBoard.getContext("2d");
+    turnText = document.querySelector("#turns");
+    lineText = document.querySelector("#lines");
+    scoreText = document.querySelector("#score");
+    document.addEventListener("keydown", keyDown);
+    document.addEventListener("keyup", keyUp);
+    homeButton.onclick = backToHome;
+    startButton.onclick = startGame;
+    reset();
+    drawBoard();
+}
+
+function backToHome() {
+    reset();
+    drawBoard();
+}
+
+function startGame() {
+    reset();
+    console.log(gameSpeed);
+    myInterval = setInterval(update, gameSpeed);
+}
+
+function reset() {
     // reset values
     gameover = false;
-    turn = 1;
-    line = 0;
     boardArr = [];
     for (let r = 0; r < rows; r++) {
         boardArr[r] = [];
@@ -47,38 +80,52 @@ window.onload = function() {
     originCoords = [];
     velX = 0;
     velY = 1;
-    turn = 1;
-    line = 0;
+    turns = 1;
+    lines = 0;
     score = 0;
     rotateCount = 0;
+    count = 0;
+
+    clearInterval(myInterval);
 
     // set up game board
-    gameBoard = document.getElementById("gameBoard");
     gameBoard.height = rows * blockSize;
     gameBoard.width = cols * blockSize;
 
-    ctx = gameBoard.getContext("2d");
-    document.addEventListener("keydown", keyDown);
-    document.addEventListener("keyup", keyUp);
-    setInterval(update, gameSpeed);
+    turnText.innerText = 0;
+    lineText.innerText = 0;
+    scoreText.innerText = 0;
 }
 
 function update() {
     // create / move blocks
     if (checkBlockAtEnd()) {
         if (isGameOver()) {
-            gamover = true;
-            alert("Game Over!");
+            gameover = true;
+            clearInterval(myInterval);
+            // show message
+            ctx.fillStyle = "lightgray";
+            ctx.fillRect(0, gameBoard.height / 2 - blockSize * 2, gameBoard.width, blockSize * 4);
+            ctx.fillStyle = "red";
+            ctx.font = "bold 30px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Game Over!", gameBoard.width / 2, gameBoard.height / 2 - blockSize / 2);
+            ctx.fillStyle = "black";
+            ctx.font = "15px Arial";
+            ctx.fillText("press Home to exit, or Start to play again.", gameBoard.width / 2, gameBoard.height / 2 + blockSize / 2)
             return;
         } else {
             convertCurr();
             deleteRow();
             createBlock();
         }
+        turnText.innerText = turns;
+        turns++;
     } else {
         moveBlock();
     }
-    turn++;
+
+    // print coordinates
     let string = "block coordinates: "
     for (let i = 0; i < blockCoords.length; i++) {
         string += "(" + blockCoords[i][0] + "," + blockCoords[i][1] + ") ";
@@ -86,6 +133,10 @@ function update() {
     console.log(string);
 
     // draw game board
+    drawBoard();
+}
+
+function drawBoard() {
     ctx.strokeStyle = "white";
     for (let r = 0; r < boardArr.length; r++) {
         for (let c = 0; c < boardArr[r].length; c++) {
@@ -109,6 +160,7 @@ function keyDown(e) {
         velX = 1;
     }
     if (e.code == "ArrowUp") {
+        console.log("arrow up pressed");
         rotateBlock();
     } else if (e.code == "ArrowDown") {
         velY = 2;
@@ -125,15 +177,16 @@ function keyUp(e) {
     else if (e.code == "ArrowRight") {
         velX = 0;
     }
-
     if (e.code == "ArrowDown") {
+        return;
+    } else if (e.code == "ArrowDown") {
         velY = 1;
     }
 }
 
 // checks if the block is at the bottom or land on another block
 function checkBlockAtEnd() {
-    if (turn == 1) {
+    if (turns == 1) {
         return true;
     }
     let bool = false;
@@ -143,7 +196,9 @@ function checkBlockAtEnd() {
         let y = blockCoords[i][1];
         if (y >= 0 && y == greatestY) {
 //            console.log("checking: " + x + ", " + y);
-            bool = bool || y == rows - 1 || boardArr[y + 1][x] != "black";
+        }
+        if (y >= 0) {
+            bool = bool || y == rows - 1 || (boardArr[y + 1][x] != "black" && boardArr[y + 1][x] != "curr");
         }
     }
 //    console.log("block is at end: " + bool);
@@ -168,10 +223,26 @@ function deleteRow() {
     for (let r = boardArr.length - 1; r > -1; r--) {
         if (!boardArr[r].includes("black")) {
             tempArr.push(r);
-            line++;
+            lines++;
 //            console.log("line deleted: " + r);
 //            console.log(structuredClone(tempArr));
         }
+    }
+
+    // score based on number of deleted line
+    switch(tempArr.length) {
+        case 1:
+            score += 100;
+            break;
+        case 2: 
+            score += 300;
+            break;
+        case 3: 
+            score += 500;
+            break;
+        case 4:
+            score += 800;
+            break;
     }
 
     // remove those rows from the board
@@ -185,10 +256,14 @@ function deleteRow() {
         filledArr.fill("black");
         boardArr.unshift(filledArr);
     }
+
+    // update stats
+    lineText.innerText = lines;
+    scoreText.innerText = score;
 }
 
 function isGameOver() {
-    if (turn == 1) {
+    if (turns == 1) {
         return false;
     }
     let bool = false;
@@ -204,9 +279,11 @@ function isGameOver() {
 function createBlock() {
     console.log("created block");
     blockCoords = [];
+    originCoords = [];
     velX = 0;
     velY = 1;
     blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+    rotateCount = 0;
     createBasedOnBlockType();
 }
 
@@ -272,7 +349,14 @@ function createBasedOnBlockType() {
             break;
     }
     blockCoords.sort(sortBlockCoords);
-    originCoords = JSON.parse(JSON.stringify(blockCoords));
+    for (let i = blockCoords.length - 1; i >= 0; i--) {
+        let x = blockCoords[i][0];
+        let y = blockCoords[i][1];
+        let orgX = centerCoord[0];
+        let orgY = centerCoord[1];
+        originCoords.push([x - orgX, y - orgY]);
+    }
+    console.log(JSON.parse(JSON.stringify(originCoords)));
 //    console.log(blockCoords);
     for (let i = 0; i < blockCoords.length; i++) {
         if (blockCoords[i][1] >= 0) {
@@ -338,10 +422,63 @@ function moveBlock() {
 
 function rotateBlock() {
     rotateCount++;
-    if (rotateCount % 4 == 0) {
-        blockCoords = JSON.parse(JSON.stringify(originCoords));
-    } else if (rotateCount % 4 == 3) {
-        for (let i = 0; i < blockCoords.length; i++) {
+    let x;
+    let y;
+    let centerCoord;
+    let prevCoords = JSON.parse(JSON.stringify(blockCoords));
+    for (let i = 0; i < blockCoords.length; i++) {
+        if (blockCoords[i][2] == "center") {
+            centerCoord = [blockCoords[i][0], blockCoords[i][1]];
         }
+    }
+    if (rotateCount % 4 == 0) {
+        for (let i = 0; i < blockCoords.length; i++) {
+            x = blockCoords[i][0];
+            y = blockCoords[i][1];
+            if (blockCoords[i][2] == "center") {
+                blockCoords[i] = [centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1], "center"];
+            } else {
+                blockCoords[i] = [centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1]];
+            }
+        }
+    }
+    else if (rotateCount % 4 == 1) {
+        for (let i = 0; i < blockCoords.length; i++) {
+            x = blockCoords[i][0];
+            y = blockCoords[i][1];
+            if (blockCoords[i][2] == "center") {
+                blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0], "center"];
+            } else {
+                blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0]];
+            }
+        }
+    } 
+    else if (rotateCount % 4 == 2) {
+        for (let i = 0; i < blockCoords.length; i++) {
+            x = blockCoords[i][0];
+            y = blockCoords[i][1];
+            if (blockCoords[i][2] == "center") {
+                blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1], "center"];
+            } else {
+                blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1]];
+            }
+        }
+    }
+    else if (rotateCount % 4 == 3) {
+        for (let i = 0; i < blockCoords.length; i++) {
+            x = blockCoords[i][0];
+            y = blockCoords[i][1];
+            if (blockCoords[i][2] == "center") {
+                blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0], "center"];
+            } else {
+                blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0]];
+            }
+        }
+    }
+    blockCoords.sort(sortBlockCoords);
+    console.log(JSON.parse(JSON.stringify(blockCoords)));
+    for (let i = 0; i < blockCoords.length; i++) {
+        boardArr[prevCoords[i][1]][prevCoords[i][0]] = "black";
+        boardArr[blockCoords[i][1]][blockCoords[i][0]] = "curr";
     } 
 }

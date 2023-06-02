@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tetris</title>
-    <link rel="stylesheet" href="tetris.css">
+    <link rel="stylesheet" href="tetris.css" />
     <script src="tetris.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Tetris</h1>
 
     <div id="menubar">
-       <ul>
+      <ul>
         <li>
-            <button id="start">Start</button>
+          <button id="start">Start</button>
         </li>
         <li>
-            <button id="reset">Reset</button>
+          <button id="home">Home</button>
         </li>
-       </ul> 
+      </ul>
     </div>
-    
+
+    <div id="stats">
+        <p>Turns: <span  id="turns">0</span></p>
+        <p>Lines: <span  id="lines">0</span></p>
+        <p>Score: <span id="score">0</span></p>
+      </div>
+
     <canvas id="gameBoard"></canvas>
-</body>
+  </body>
 </html>

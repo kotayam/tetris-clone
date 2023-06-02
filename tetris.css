@@ -7,6 +7,10 @@ body {
     text-align: center;
 }
 
+h1 {
+    font-size: 3rem;
+}
+
 #menubar {
     width: 50%;
     margin: auto;
@@ -22,4 +26,17 @@ body {
 #menubar li {
     display: inline-block;
     padding: 1rem;
+}
+
+#stats {
+    position: absolute;
+    left: 10rem;
+    display: inline-block;
+    border: 2px solid black;
+    padding: 0.5rem;
+}
+
+#stats p {
+    font-size: 2rem;
+    margin: 1rem;
 }
