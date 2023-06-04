@@ -79,7 +79,6 @@ function showHomeScreen() {
 
 function startGame() {
     reset();
-    //console.log(gameSpeed);
     myInterval = setInterval(update, gameSpeed);
 }
 
@@ -109,6 +108,7 @@ function reset() {
     gameBoard.height = rows * blockSize;
     gameBoard.width = cols * blockSize;
 
+    // reset stats
     turnText.innerText = 0;
     lineText.innerText = 0;
     scoreText.innerText = 0;
@@ -138,7 +138,6 @@ function update() {
     for (let i = 0; i < blockCoords.length; i++) {
         string += "(" + blockCoords[i][0] + "," + blockCoords[i][1] + ") ";
     }
-    //console.log(string);
 
     // draw game board
     drawBoard();
@@ -179,14 +178,11 @@ function keyDown(e) {
     else if (e.code == "ArrowRight") {
         velX = 1;
     }
-    if (e.code == "ArrowUp") {
-        //console.log("arrow up pressed");
+    else if (e.code == "ArrowUp") {
         rotateBlock();
-    } else if (e.code == "ArrowDown") {
+    } 
+    else if (e.code == "ArrowDown") {
         velY = 2;
-    }
-    if (e.code == "Space") {
-        // go straight down
     }
 }
 
@@ -197,9 +193,10 @@ function keyUp(e) {
     else if (e.code == "ArrowRight") {
         velX = 0;
     }
-    if (e.code == "ArrowDown") {
+    else if (e.code == "ArrowUp") {
         return;
-    } else if (e.code == "ArrowDown") {
+    } 
+    else if (e.code == "ArrowDown") {
         velY = 1;
     }
 }
@@ -215,13 +212,11 @@ function checkBlockAtEnd() {
         let x = blockCoords[i][0];
         let y = blockCoords[i][1];
         if (y >= 0 && y == greatestY) {
-//            console.log("checking: " + x + ", " + y);
         }
         if (y >= 0) {
             bool = bool || y == rows - 1 || (boardArr[y + 1][x] != "black" && boardArr[y + 1][x] != "curr");
         }
     }
-//    console.log("block is at end: " + bool);
     return bool;
 }
 
@@ -244,8 +239,6 @@ function deleteRow() {
         if (!boardArr[r].includes("black")) {
             tempArr.push(r);
             lines++;
-//            console.log("line deleted: " + r);
-//            console.log(structuredClone(tempArr));
         }
     }
 
@@ -291,13 +284,11 @@ function isGameOver() {
         let y = blockCoords[i][1];
         bool = bool || y < 0;
     }
-    //console.log("gameover: " + bool);
     return bool;
 }
 
 // creates a new block at the top middle of the screen
 function createBlock() {
-    //console.log("created block");
     blockCoords = [];
     originCoords = [];
     velX = 0;
@@ -381,8 +372,6 @@ function createBasedOnBlockType() {
         let orgY = centerCoord[1];
         originCoords.push([x - orgX, y - orgY, id]);
     }
-    console.log(JSON.parse(JSON.stringify(blockCoords)));
-//    console.log(blockCoords);
     for (let i = 0; i < blockCoords.length; i++) {
         if (blockCoords[i][1] >= 0) {
             boardArr[blockCoords[i][1]][blockCoords[i][0]] = "curr";
@@ -390,16 +379,9 @@ function createBasedOnBlockType() {
     }
 }
 
-// sorts the coordinates of blocks based on x,y value from least (top left) -> greatest (top right)
+// sorts the coordinates of blocks based on its id (0-3)
 function sortBlockCoords(a, b) {
     return a[2] - b[2];
-    /*
-    if (a[1] == b[1]) {
-        return a[0] - b[0];
-    } else {
-        return a[1] - b[1];
-    }
-    */
 } 
 
 function checkCollision() {
@@ -444,57 +426,39 @@ function moveBlock() {
         if (nextY >= 0) {
             boardArr[nextY][nextX] = "curr";
         }
-        /*
-        if (blockCoords[i][2] == 0) {
-            blockCoords[i] = [nextX, nextY, 0];
-        } else {
-            blockCoords[i] = [nextX, nextY, id];
-        }
-        */
-        //blockCoords[i][0] = nextX;
-        //blockCoords[i][1] = nextY;
-        /*
-        if (currY >= 0 && nextY >= 0) {
-//            console.log("1: " + currX + ", " + currY);
-            boardArr[currY][currX] = "black"
-            boardArr[nextY][nextX] = "curr";
-        } else if (nextY < 0) {
-//            console.log("3: " + currX + ", " + currY);
-        } else if (currY < 0) {
-//            console.log("3: " + currX + ", " + currY);
-            boardArr[nextY][nextX] = "curr";
-        }
-        */
     }
-    //console.log("moved block");
-//    console.log(blockCoords);
 }
 
 function rotateBlock() {
+    // if block is out of screen (top), cannot rotate
+    for (let i = 0; i < blockCoords.length; i++) {
+        if (blockCoords[i][1] < 0) {
+            return;
+        }
+    }
+
     rotateCount++;
     let x;
     let y;
     let id;
     let centerCoord;
     let prevCoords = JSON.parse(JSON.stringify(blockCoords));
+    let nextCoords = [];
+
+    // retrieve the center coordinate of the block
     for (let i = 0; i < blockCoords.length; i++) {
         if (blockCoords[i][2] == 0) {
             centerCoord = [blockCoords[i][0], blockCoords[i][1]];
         }
     }
+
+    // rotate block store in nextCoords
     if (rotateCount % 4 == 0) {
         for (let i = 0; i < blockCoords.length; i++) {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
             id = blockCoords[i][2];
-            blockCoords[i] = [centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1], id];
-            /*
-            if (blockCoords[i][2] == "center") {
-                blockCoords[i] = [centerCoord[0]  + originCoords[i][0], centerCoord[1] + originCoords[i][1], "center"];
-            } else {
-                blockCoords[i] = [centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1]];
-            }
-            */
+            nextCoords.push([centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1], id]);
         }
     }
     else if (rotateCount % 4 == 1) {
@@ -502,14 +466,7 @@ function rotateBlock() {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
             id = blockCoords[i][2];
-            blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0], id];
-            /*
-            if (blockCoords[i][2] == "center") {
-                blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0], "center"];
-            } else {
-                blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0]];
-            }
-            */
+            nextCoords.push([centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0], id]);
         }
     } 
     else if (rotateCount % 4 == 2) {
@@ -517,14 +474,7 @@ function rotateBlock() {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
             id = blockCoords[i][2];
-            blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1], id];
-            /*
-            if (blockCoords[i][2] == "center") {
-                blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1], "center"];
-            } else {
-                blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1]];
-            }
-            */
+            nextCoords.push([centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1], id]);
         }
     }
     else if (rotateCount % 4 == 3) {
@@ -532,21 +482,19 @@ function rotateBlock() {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
             id = blockCoords[i][2];
-            blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0], id];
-            /*
-            if (blockCoords[i][2] == "center") {
-                blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0], "center"];
-            } else {
-                blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0]];
-            }
-            */
+            nextCoords.push([centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0], id]);
         }
     }
+
+    // check if post-rotation coordinates is valid
+    for (let i = 0; i < blockCoords.length; i++) {
+        if (nextCoords[i][0] < 0 || nextCoords[i][0] >= cols) {
+            return;
+        }
+    }
+    // if post rotation coordinates are valid, assign to current block coordinates
+    blockCoords = JSON.parse(JSON.stringify(nextCoords));
     blockCoords.sort(sortBlockCoords);
-    console.log(JSON.parse(JSON.stringify(originCoords)));
-    console.log(JSON.parse(JSON.stringify(prevCoords)));
-    console.log(JSON.parse(JSON.stringify(centerCoord)));
-    console.log(JSON.parse(JSON.stringify(blockCoords)));
     for (let i = 0; i < blockCoords.length; i++) {
         boardArr[prevCoords[i][1]][prevCoords[i][0]] = "black";
         boardArr[blockCoords[i][1]][blockCoords[i][0]] = "curr";
