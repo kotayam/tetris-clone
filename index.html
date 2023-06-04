@@ -9,25 +9,39 @@
     <script src="tetris.js"></script>
   </head>
   <body>
-    <h1>Tetris</h1>
+    <div id="main-content">
+      <h1>Tetris</h1>
 
-    <div id="menubar">
-      <ul>
-        <li>
-          <button id="start">Start</button>
-        </li>
-        <li>
-          <button id="home">Home</button>
-        </li>
-      </ul>
-    </div>
-
-    <div id="stats">
-        <p>Turns: <span  id="turns">0</span></p>
-        <p>Lines: <span  id="lines">0</span></p>
-        <p>Score: <span id="score">0</span></p>
+      <div id="menubar">
+        <ul>
+          <li>
+            <button id="start">Start</button>
+          </li>
+          <li>
+            <button id="home">Home</button>
+          </li>
+        </ul>
       </div>
 
-    <canvas id="gameBoard"></canvas>
+      <div id="left">
+        <div id="stats">
+          <p>Turns: <span id="turns">0</span></p>
+          <p>Lines: <span id="lines">0</span></p>
+          <p>Score: <span id="score">0</span></p>
+        </div>
+      </div>
+
+      <canvas id="gameBoard"></canvas>
+
+      <div id="right">
+        <div id="controls">
+          <p>
+            Controls: <br />Arrow Left = move block left <br />Arrow Right =
+            move block right <br />Arrow Up = rotate block <br />Arrow Down =
+            move block down faster
+          </p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

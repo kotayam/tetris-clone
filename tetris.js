@@ -2,7 +2,7 @@
 const rows = 20;
 const cols = 10;
 const blockSize = 40;
-const gameSpeed = 200; // in miliseconds (1000 milisec = 1 sec)
+const gameSpeed = 300; // in miliseconds (1000 milisec = 1 sec)
 let myInterval;
 let ctx;
 
@@ -53,16 +53,33 @@ window.onload = function () {
     startButton.onclick = startGame;
     reset();
     drawBoard();
+    showHomeScreen();
 }
 
 function backToHome() {
     reset();
     drawBoard();
+    showHomeScreen();
+}
+
+function showHomeScreen() {
+    ctx.fillStyle = "lightgray";
+    ctx.fillRect(0, gameBoard.height / 2 - blockSize * 4, gameBoard.width, blockSize * 8);
+    ctx.fillStyle = "blue";
+    ctx.font = "bold 30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Welcome to Tetris!", gameBoard.width / 2, gameBoard.height / 2 - blockSize * 2.5);
+    ctx.fillStyle = "black";
+    ctx.font = "17px Arial";
+    ctx.fillText("Press Start to play game.", gameBoard.width / 2, gameBoard.height / 2 - blockSize * 1.25);
+    ctx.fillText("Press Home while playing to return to this screen.", gameBoard.width / 2, gameBoard.height / 2);
+    ctx.fillText("Controls are written at top right.", gameBoard.width / 2, gameBoard.height / 2 + blockSize * 1.25);
+    ctx.fillText("Enjoy!", gameBoard.width / 2, gameBoard.height / 2 + blockSize * 2.5)
 }
 
 function startGame() {
     reset();
-    console.log(gameSpeed);
+    //console.log(gameSpeed);
     myInterval = setInterval(update, gameSpeed);
 }
 
@@ -103,16 +120,7 @@ function update() {
         if (isGameOver()) {
             gameover = true;
             clearInterval(myInterval);
-            // show message
-            ctx.fillStyle = "lightgray";
-            ctx.fillRect(0, gameBoard.height / 2 - blockSize * 2, gameBoard.width, blockSize * 4);
-            ctx.fillStyle = "red";
-            ctx.font = "bold 30px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText("Game Over!", gameBoard.width / 2, gameBoard.height / 2 - blockSize / 2);
-            ctx.fillStyle = "black";
-            ctx.font = "15px Arial";
-            ctx.fillText("press Home to exit, or Start to play again.", gameBoard.width / 2, gameBoard.height / 2 + blockSize / 2)
+            showGameOverScreen();
             return;
         } else {
             convertCurr();
@@ -130,10 +138,22 @@ function update() {
     for (let i = 0; i < blockCoords.length; i++) {
         string += "(" + blockCoords[i][0] + "," + blockCoords[i][1] + ") ";
     }
-    console.log(string);
+    //console.log(string);
 
     // draw game board
     drawBoard();
+}
+
+function showGameOverScreen() {
+    ctx.fillStyle = "lightgray";
+    ctx.fillRect(0, gameBoard.height / 2 - blockSize * 2, gameBoard.width, blockSize * 4);
+    ctx.fillStyle = "red";
+    ctx.font = "bold 30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Game Over!", gameBoard.width / 2, gameBoard.height / 2 - blockSize / 2);
+    ctx.fillStyle = "black";
+    ctx.font = "17px Arial";
+    ctx.fillText("press Home to exit, or Start to play again.", gameBoard.width / 2, gameBoard.height / 2 + blockSize / 2);
 }
 
 function drawBoard() {
@@ -160,7 +180,7 @@ function keyDown(e) {
         velX = 1;
     }
     if (e.code == "ArrowUp") {
-        console.log("arrow up pressed");
+        //console.log("arrow up pressed");
         rotateBlock();
     } else if (e.code == "ArrowDown") {
         velY = 2;
@@ -271,13 +291,13 @@ function isGameOver() {
         let y = blockCoords[i][1];
         bool = bool || y < 0;
     }
-    console.log("gameover: " + bool);
+    //console.log("gameover: " + bool);
     return bool;
 }
 
 // creates a new block at the top middle of the screen
 function createBlock() {
-    console.log("created block");
+    //console.log("created block");
     blockCoords = [];
     originCoords = [];
     velX = 0;
@@ -293,7 +313,7 @@ function createBasedOnBlockType() {
     switch(blockType) {
         case "line":
             blockColor = "lightblue";
-            centerCoord = [4, -1, "center"]; // give center coord an id indicating center
+            centerCoord = [4, -1]; // give center coord an id indicating center
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
             blockCoords.push([centerCoord[0] + 1, centerCoord[1]]);
@@ -301,7 +321,7 @@ function createBasedOnBlockType() {
             break;
         case "square":
             blockColor = "yellow";
-            centerCoord = [4, -1, "center"];
+            centerCoord = [4, -1];
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] + 1, centerCoord[1] - 1]);
@@ -309,7 +329,7 @@ function createBasedOnBlockType() {
             break;
         case "L1":
             blockColor = "blue";
-            centerCoord = [4, -1, "center"]; 
+            centerCoord = [4, -1]; 
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0] - 1, centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
@@ -317,7 +337,7 @@ function createBasedOnBlockType() {
             break;
         case "L2":
             blockColor = "orange";
-            centerCoord = [4, -1, "center"]; 
+            centerCoord = [4, -1]; 
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0] + 1, centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
@@ -325,7 +345,7 @@ function createBasedOnBlockType() {
             break;
         case "T":
             blockColor = "purple";
-            centerCoord = [4, -1, "center"]; 
+            centerCoord = [4, -1]; 
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
@@ -333,7 +353,7 @@ function createBasedOnBlockType() {
             break;
         case "Z1":
             blockColor = "red";
-            centerCoord = [4, -1, "center"]; 
+            centerCoord = [4, -1]; 
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0] - 1, centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
@@ -341,22 +361,27 @@ function createBasedOnBlockType() {
             break;
         case "Z2":
             blockColor = "green";
-            centerCoord = [4, -1, "center"]; 
+            centerCoord = [4, -1]; 
             blockCoords.push(centerCoord);
             blockCoords.push([centerCoord[0], centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] + 1, centerCoord[1] - 1]);
             blockCoords.push([centerCoord[0] - 1, centerCoord[1]]);
             break;
     }
+    // give each block an unique id 0-3. 0 is center
+    for (let i = 0; i < blockCoords.length; i++) {
+        blockCoords[i].push(i);
+    }
     blockCoords.sort(sortBlockCoords);
-    for (let i = blockCoords.length - 1; i >= 0; i--) {
+    for (let i = 0; i < blockCoords.length; i++) {
         let x = blockCoords[i][0];
         let y = blockCoords[i][1];
+        let id = blockCoords[i][2];
         let orgX = centerCoord[0];
         let orgY = centerCoord[1];
-        originCoords.push([x - orgX, y - orgY]);
+        originCoords.push([x - orgX, y - orgY, id]);
     }
-    console.log(JSON.parse(JSON.stringify(originCoords)));
+    console.log(JSON.parse(JSON.stringify(blockCoords)));
 //    console.log(blockCoords);
     for (let i = 0; i < blockCoords.length; i++) {
         if (blockCoords[i][1] >= 0) {
@@ -367,11 +392,14 @@ function createBasedOnBlockType() {
 
 // sorts the coordinates of blocks based on x,y value from least (top left) -> greatest (top right)
 function sortBlockCoords(a, b) {
+    return a[2] - b[2];
+    /*
     if (a[1] == b[1]) {
         return a[0] - b[0];
     } else {
         return a[1] - b[1];
     }
+    */
 } 
 
 function checkCollision() {
@@ -393,18 +421,39 @@ function moveBlock() {
         velX = 0;
         velY = 1;
     }
+    let currX;
+    let currY;
+
+    // color current coordinates black
+    for (let i = 0; i < blockCoords.length; i++) {
+        currX = blockCoords[i][0];
+        currY = blockCoords[i][1];
+        if (currY >= 0) {
+            boardArr[currY][currX] = "black";
+        }
+    }
+
+    // color new coordinates as curr
     for (let i = blockCoords.length-1; i >= 0; i--) {
-        let currX = blockCoords[i][0];
-        let currY = blockCoords[i][1];
+        currX = blockCoords[i][0];
+        currY = blockCoords[i][1];
+        let id = blockCoords[i][2];
         let nextX = currX + velX;
         let nextY = currY + velY;
-        if (blockCoords[i][2] === "center") {
-            blockCoords[i] = [nextX, nextY, "center"];
-        } else {
-            blockCoords[i] = [nextX, nextY];
+        blockCoords[i] = [nextX, nextY, id];
+        if (nextY >= 0) {
+            boardArr[nextY][nextX] = "curr";
         }
+        /*
+        if (blockCoords[i][2] == 0) {
+            blockCoords[i] = [nextX, nextY, 0];
+        } else {
+            blockCoords[i] = [nextX, nextY, id];
+        }
+        */
         //blockCoords[i][0] = nextX;
         //blockCoords[i][1] = nextY;
+        /*
         if (currY >= 0 && nextY >= 0) {
 //            console.log("1: " + currX + ", " + currY);
             boardArr[currY][currX] = "black"
@@ -415,8 +464,9 @@ function moveBlock() {
 //            console.log("3: " + currX + ", " + currY);
             boardArr[nextY][nextX] = "curr";
         }
+        */
     }
-    console.log("moved block");
+    //console.log("moved block");
 //    console.log(blockCoords);
 }
 
@@ -424,10 +474,11 @@ function rotateBlock() {
     rotateCount++;
     let x;
     let y;
+    let id;
     let centerCoord;
     let prevCoords = JSON.parse(JSON.stringify(blockCoords));
     for (let i = 0; i < blockCoords.length; i++) {
-        if (blockCoords[i][2] == "center") {
+        if (blockCoords[i][2] == 0) {
             centerCoord = [blockCoords[i][0], blockCoords[i][1]];
         }
     }
@@ -435,47 +486,66 @@ function rotateBlock() {
         for (let i = 0; i < blockCoords.length; i++) {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
+            id = blockCoords[i][2];
+            blockCoords[i] = [centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1], id];
+            /*
             if (blockCoords[i][2] == "center") {
-                blockCoords[i] = [centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1], "center"];
+                blockCoords[i] = [centerCoord[0]  + originCoords[i][0], centerCoord[1] + originCoords[i][1], "center"];
             } else {
                 blockCoords[i] = [centerCoord[0] + originCoords[i][0], centerCoord[1] + originCoords[i][1]];
             }
+            */
         }
     }
     else if (rotateCount % 4 == 1) {
         for (let i = 0; i < blockCoords.length; i++) {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
+            id = blockCoords[i][2];
+            blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0], id];
+            /*
             if (blockCoords[i][2] == "center") {
                 blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0], "center"];
             } else {
                 blockCoords[i] = [centerCoord[0] - originCoords[i][1], centerCoord[1] + originCoords[i][0]];
             }
+            */
         }
     } 
     else if (rotateCount % 4 == 2) {
         for (let i = 0; i < blockCoords.length; i++) {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
+            id = blockCoords[i][2];
+            blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1], id];
+            /*
             if (blockCoords[i][2] == "center") {
                 blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1], "center"];
             } else {
                 blockCoords[i] = [centerCoord[0] - originCoords[i][0], centerCoord[1] - originCoords[i][1]];
             }
+            */
         }
     }
     else if (rotateCount % 4 == 3) {
         for (let i = 0; i < blockCoords.length; i++) {
             x = blockCoords[i][0];
             y = blockCoords[i][1];
+            id = blockCoords[i][2];
+            blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0], id];
+            /*
             if (blockCoords[i][2] == "center") {
                 blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0], "center"];
             } else {
                 blockCoords[i] = [centerCoord[0] + originCoords[i][1], centerCoord[1] - originCoords[i][0]];
             }
+            */
         }
     }
     blockCoords.sort(sortBlockCoords);
+    console.log(JSON.parse(JSON.stringify(originCoords)));
+    console.log(JSON.parse(JSON.stringify(prevCoords)));
+    console.log(JSON.parse(JSON.stringify(centerCoord)));
     console.log(JSON.parse(JSON.stringify(blockCoords)));
     for (let i = 0; i < blockCoords.length; i++) {
         boardArr[prevCoords[i][1]][prevCoords[i][0]] = "black";

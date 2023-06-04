@@ -3,8 +3,11 @@
     padding: 0;
 }
 
-body {
+#main-content {
     text-align: center;
+    width: 50%;
+    height: 100%;
+    margin: auto;
 }
 
 h1 {
@@ -28,15 +31,29 @@ h1 {
     padding: 1rem;
 }
 
+#left {
+    float: left;
+    width: 20%;
+}
+
 #stats {
-    position: absolute;
-    left: 10rem;
-    display: inline-block;
     border: 2px solid black;
     padding: 0.5rem;
 }
 
 #stats p {
-    font-size: 2rem;
-    margin: 1rem;
+    font-size: 1.5rem;
+}
+
+#right {
+    float: right;
+    width: 20%;
+}
+
+#controls {
+    width: 170%;
+    font-size: 1.2rem;
+    text-align: left;
+    border: 2px solid black;
+    padding: 0.5rem;
 }
